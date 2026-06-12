@@ -335,7 +335,7 @@ func (r *ROSARoleConfigReconciler) reconcileAccountRoles(scope *scope.RosaRoleCo
 	return accountroles.CreateHCPRoles(r.Runtime, scope.RosaRoleConfig.Spec.AccountRoleConfig.Prefix, true, scope.RosaRoleConfig.Spec.AccountRoleConfig.PermissionsBoundaryARN,
 		rosa.GetOCMClientEnv(r.Runtime.OCMClient), policies, scope.RosaRoleConfig.Spec.AccountRoleConfig.Version, scope.RosaRoleConfig.Spec.AccountRoleConfig.Path,
 		scope.RosaRoleConfig.Spec.AccountRoleConfig.SharedVPCConfig.IsSharedVPC(), scope.RosaRoleConfig.Spec.AccountRoleConfig.SharedVPCConfig.RouteRoleARN,
-		scope.RosaRoleConfig.Spec.AccountRoleConfig.SharedVPCConfig.VPCEndpointRoleARN)
+		scope.RosaRoleConfig.Spec.AccountRoleConfig.SharedVPCConfig.VPCEndpointRoleARN, scope.RosaRoleConfig.Spec.AccountRoleConfig.TrustPolicyExternalID)
 }
 
 func (r *ROSARoleConfigReconciler) deleteAccountRoles(scope *scope.RosaRoleConfigScope) error {
