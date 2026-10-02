@@ -79,3 +79,65 @@ func TestValidateROSANetwork(t *testing.T) {
 		g.Expect(err).NotTo(HaveOccurred())
 	})
 }
+
+func TestValidateEc2MetadataHttpTokensImmutability(t *testing.T) {
+	t.Run("Update blocked when changing required to optional", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+		oldCP := &ROSAControlPlane{
+			Spec: RosaControlPlaneSpec{
+				Ec2MetadataHTTPTokens: Ec2MetadataHTTPTokensRequired,
+			},
+		}
+		newCP := &ROSAControlPlane{
+			Spec: RosaControlPlaneSpec{
+				Ec2MetadataHTTPTokens: Ec2MetadataHTTPTokensOptional,
+			},
+		}
+		err := validateEc2MetadataHTTPTokensImmutability(oldCP, newCP)
+		g.Expect(err).To(HaveOccurred())
+		g.Expect(err.Error()).To(ContainSubstring("ec2MetadataHttpTokens is immutable"))
+	})
+
+	t.Run("Update blocked when adding field to object that was created without it", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+		oldCP := &ROSAControlPlane{
+			Spec: RosaControlPlaneSpec{},
+		}
+		newCP := &ROSAControlPlane{
+			Spec: RosaControlPlaneSpec{
+				Ec2MetadataHTTPTokens: Ec2MetadataHTTPTokensRequired,
+			},
+		}
+		err := validateEc2MetadataHTTPTokensImmutability(oldCP, newCP)
+		g.Expect(err).To(HaveOccurred())
+		g.Expect(err.Error()).To(ContainSubstring("ec2MetadataHttpTokens is immutable"))
+	})
+
+	t.Run("Update allowed when value unchanged", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+		oldCP := &ROSAControlPlane{
+			Spec: RosaControlPlaneSpec{
+				Ec2MetadataHTTPTokens: Ec2MetadataHTTPTokensRequired,
+			},
+		}
+		newCP := &ROSAControlPlane{
+			Spec: RosaControlPlaneSpec{
+				Ec2MetadataHTTPTokens: Ec2MetadataHTTPTokensRequired,
+			},
+		}
+		err := validateEc2MetadataHTTPTokensImmutability(oldCP, newCP)
+		g.Expect(err).NotTo(HaveOccurred())
+	})
+
+	t.Run("Update allowed when both old and new have no value", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+		oldCP := &ROSAControlPlane{
+			Spec: RosaControlPlaneSpec{},
+		}
+		newCP := &ROSAControlPlane{
+			Spec: RosaControlPlaneSpec{},
+		}
+		err := validateEc2MetadataHTTPTokensImmutability(oldCP, newCP)
+		g.Expect(err).NotTo(HaveOccurred())
+	})
+}

@@ -91,6 +91,7 @@ func (*rosaMachinePoolWebhook) ValidateUpdate(_ context.Context, oldObj, newObj 
 
 	allErrs = append(allErrs, validateImmutable(oldPool.Spec.AdditionalSecurityGroups, r.Spec.AdditionalSecurityGroups, "additionalSecurityGroups")...)
 	allErrs = append(allErrs, validateImmutable(oldPool.Spec.AdditionalTags, r.Spec.AdditionalTags, "additionalTags")...)
+	allErrs = append(allErrs, validateImmutable(oldPool.Spec.Ec2MetadataHTTPTokens, r.Spec.Ec2MetadataHTTPTokens, "ec2MetadataHttpTokens")...)
 
 	if len(allErrs) == 0 {
 		return nil, nil

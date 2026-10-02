@@ -115,6 +115,11 @@ func (*rosaControlPlaneWebhook) ValidateUpdate(_ context.Context, oldObj, newObj
 		return nil, fmt.Errorf("expected an ROSAControlPlane object but got %T", r)
 	}
 
+	oldRosaCP, ok := oldObj.(*ROSAControlPlane)
+	if !ok {
+		return nil, fmt.Errorf("expected an ROSAControlPlane object but got %T", oldObj)
+	}
+
 	var allErrs field.ErrorList
 
 	if err := r.validateVersion(); err != nil {
@@ -126,6 +131,10 @@ func (*rosaControlPlaneWebhook) ValidateUpdate(_ context.Context, oldObj, newObj
 	}
 
 	if err := r.validateRosaRoleConfig(); err != nil {
+		allErrs = append(allErrs, err)
+	}
+
+	if err := validateEc2MetadataHTTPTokensImmutability(oldRosaCP, r); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
@@ -277,6 +286,14 @@ func (r *ROSAControlPlane) validateROSANetwork() *field.Error {
 		return field.Required(field.NewPath("spec.availabilityZones"), "spec.availabilityZones cannot be empty when spec.rosaNetworkRef is unspecified")
 	}
 
+	return nil
+}
+
+func validateEc2MetadataHTTPTokensImmutability(oldRosaCP, newRosaCP *ROSAControlPlane) *field.Error {
+	if oldRosaCP.Spec.Ec2MetadataHTTPTokens != newRosaCP.Spec.Ec2MetadataHTTPTokens {
+		return field.Invalid(field.NewPath("spec.ec2MetadataHttpTokens"), newRosaCP.Spec.Ec2MetadataHTTPTokens,
+			"ec2MetadataHttpTokens is immutable and must be set at creation time")
+	}
 	return nil
 }
 

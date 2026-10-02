@@ -1190,6 +1190,10 @@ func buildOCMClusterSpec(controlPlaneSpec rosacontrolplanev1.RosaControlPlaneSpe
 		ExternalAuthProvidersEnabled: controlPlaneSpec.EnableExternalAuthProviders,
 	}
 
+	if controlPlaneSpec.Ec2MetadataHTTPTokens != "" {
+		ocmClusterSpec.Ec2MetadataHttpTokens = cmv1.Ec2MetadataHttpTokens(controlPlaneSpec.Ec2MetadataHTTPTokens)
+	}
+
 	if controlPlaneSpec.EndpointAccess == rosacontrolplanev1.Private {
 		ocmClusterSpec.Private = ptr.To(true)
 		ocmClusterSpec.PrivateLink = ptr.To(true)
